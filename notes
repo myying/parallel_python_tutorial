@@ -1,0 +1,17 @@
+what is a process/thread?
+- monitor processes on linux: &, fg, bg, ps auf, top, send kill/terminate signal
+
+- subprocess
+Use subprocess for external commands and programs.
+
+- cpu or io bound tasks
+Use multiprocessing for CPU-bound tasks requiring parallel execution.
+Use threading for I/O-bound tasks that can benefit from concurrency despite the GIL limitations.
+
+- concurrent.futures.ProcessPoolExecutor, ThreadPoolExecutor
+Use this to avoid detail implementation of multiprocessing/threading
+
+- mpi4py
+Distributed memory (multiple computers in a cluster) can be used to scale up to even larger amount of processors
+
+

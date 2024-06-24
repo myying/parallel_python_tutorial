@@ -6,7 +6,7 @@ A CPU has several cores, each is able to execute some instructions to perform co
 
 On Linux, you can try `./main.sh`, it calls the `run_job.sh` script several times and run these in the background `./run_job.sh $job_id &`. The `&` is Linux syntax to run a program in the background. You can use `fg` to bring programs in the background back to the foreground. In the command line, a program running in the foreground will have to wait till completion for other programs to run. You can send signals to a foreground program by keyboard interruption (Ctrl+C or Ctrl+Z), or a background program by `kill -s SIG pid`. To monitor programs running in the background you can use `ps auf` (`pstree` in MacOS), or using the `top`/`htop` program.
 
-Programs that are heavy in computation (CPU-bound) will take most of the time using the CPU core running instructions, you typically see near 100% CPU when it's running. Programs that are doing more file I/O or web communication (I/O-bound) will take most of the time waiting for the slow data transfer, typically not full CPU usage. To parallelize a program that is CPU-bound, you have to involve more CPU cores, while for I/O-bound program you can use multiple threads one the single CPU core to achieve concurrency.
+Programs that are heavy in computation (CPU-bound) will take most of the time using the CPU core running instructions, you typically see near 100% CPU when it's running. Programs that are doing more file I/O or web communication (I/O-bound) will take most of the time waiting for the slow data transfer, typically not full CPU usage. To parallelize a program that is CPU-bound, you have to involve more CPU cores, while for I/O-bound program you can use multiple threads on single CPU core to achieve concurrency.
 
 The Python interpreter now has a Global Interpreter Lock (GIL), which prevents threads to run simultaneously. This limits the threading in Python to only I/O-bound tasks. But Python program can still use multiple processes to achieve parallelism. In fact there are so many libraries in Python for parallelization, it is indeed quite confusing.
 
@@ -30,6 +30,11 @@ See example in `demo_concurrent_futures.ipynb`. Note that `multiprocessing` is b
 `mpi4py` is a wrapper to the classic MPI library to allow truly distributed-memory parallelism in high performance computer cluster to scale to even larger amount of CPU cores. Speed-up can be achieved by partitioning the task list by `distribute_tasks`, and each processor runs a subset of the tasks. See the example in `demo_mpi.py` using `parallel_with_distribute_tasks()`.
 The `mpi4py.futures.MPICommExecutor` also provide a high-level module to spawn the tasks to all the available processors in the communicator.
 `mpi4py.MPI` also allows you to perform interprocess communication, such as `comm.send`, `comm.recv`, `comm.allreduce`, `comm.gather`, etc.
+
+
+### Be aware of deadlocks!
+
+Sometimes multiple processes or threads may end up trying to write to the same netCDF file, causing corruption. To prevent this, usually file I/O library use locks to allow only one access at a time (for example in `netCDF.Dataset(parallel=True)`). But if you don't coordinate carefully, processors can wait for each other to release the lock, a deadlock. This can also happen when blocking send/receive operations are not coordinated well.
 
 
 ### Other ways to speed up python code
